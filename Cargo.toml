@@ -8,4 +8,6 @@ edition = "2018"
 
 [dependencies]
 tokio = { version = "*", features = ["macros"] }
+tokio-threadpool = "0.1.18"
 tokio-postgres = "*"
+futures = "0.3.4"
