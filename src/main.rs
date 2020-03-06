@@ -48,20 +48,19 @@ async fn main() -> Result<(), Error> {
 
     println!("Initiating pgsql connections test...");
 
+    // create futures
     let mut f = Vec::new();
-
     for n in 0..N_CONNECTIONS {
-        f.push(
-            time::timeout(
-                Duration::from_secs(DURATION_SEC), 
-                run_connection(n)
-            )
-        );
+        f.push( run_connection(n) );
     }
 
-    join_all(f).await;
-
-    println!("Done");
+    // join them all and await them
+    if let Err(_) = time::timeout(
+        Duration::from_secs(DURATION_SEC),
+        join_all(f)
+    ).await {
+        println!("Done");
+    }
 
     Ok(())
 }
