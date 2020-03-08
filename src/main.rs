@@ -1,3 +1,4 @@
+use tokio::runtime;
 use tokio_postgres::{NoTls, Error};
 use tokio::time;
 use std::time::Duration;
@@ -70,18 +71,41 @@ async fn main_loop() {
 
 }
 
-#[tokio::main]
-async fn main() -> Result<(), Error> {
-
+fn main() {
     println!("Initiating pgsql connections test...");
-
-    // run the main loop for a certain period of time
-    if let Err(_) = time::timeout(
-        Duration::from_secs(TOTAL_DURATION_SEC),
-        main_loop()
-    ).await {
-        println!("Done");
-    }
-
-    Ok(())
+    let mut runtime = runtime::Builder::new()
+        .threaded_scheduler()
+        .enable_all()
+        .build()
+        .unwrap();
+    runtime.block_on( async {
+        if let Err(_) = time::timeout(
+                Duration::from_secs(TOTAL_DURATION_SEC),
+                main_loop()
+            ).await {
+                println!("Done.")
+            }
+     } );
 }
+
+// // run main loop for a certain amount of time
+// async fn main_fnc() {
+
+//     if let Err(_) = time::timeout(
+//             Duration::from_secs(TOTAL_DURATION_SEC),
+//             main_loop()
+//         ).await {
+//             println!("Done.")
+//         }
+
+// }
+
+// fn main() {
+//     println!("Initiating pgsql connections test...");
+//     let mut runtime = runtime::Builder::new()
+//         .threaded_scheduler()
+//         .enable_all()
+//         .build()
+//         .unwrap();
+//     runtime.block_on( main_fnc() );
+// }
